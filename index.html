@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase</title>
+  </head>
+  <body>
+    <div id="isanon">
+    </div>
+    <h1>Sign up using in firebase</h1>
+    <form action="" id="signIn">
+      <input type="text" id="email" placeholder="Email">
+      <input type="text" id="password" placeholder="Password">
+      <div id="gpp">
+      </div>
+      <button type="submit">Sign In</button>
+    </form>
+    <button id="signInGoogle">Sign In With Google</button>
+    <button id="logout">Log Out from account</button>
+    <section>
+      <p>Stories from my database: </p>
+      <ol class="result-container">
+      </ol>
+    </section>
+    <section>
+      <p>Add your stories</p>
+      <form class="add-stories">
+        <input class="title-add" type="text" placeholder="title">
+        <input class="summary-add" type="text" placeholder="summary">
+        <button type="submit">Add</button>
+      </form>
+    </section>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
