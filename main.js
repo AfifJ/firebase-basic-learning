@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { auth, googleProvider, db } from "./config/firebase";
+import { auth, googleProvider, db, storage } from "./config/firebase";
 import { getDocs, collection, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes } from 'firebase/storage'
 let loggedUser = "";
 
 onAuthStateChanged(auth, (user) => {
@@ -64,9 +65,10 @@ const getDataStories = async () => {
     // filtered.forEach(e => console.log(e.title));
     filtered.forEach(e => htmlResult +=
       `<li>
-      ${e.title}
+      <h3>${e.title}</h3>
+      by ${e.author.displayName}
       <br>
-      <button class="delete" data-id="${e.id}">Delete Story</button>
+        <button class="delete" data-id="${e.id}">Delete Story</button>
       <br>
       
       <form class="update-title" data-id=${e.id}>
@@ -95,8 +97,10 @@ document.querySelector('.add-stories').addEventListener('submit', async (e) => {
     await addDoc(dataCollectionRef, {
       title: newTitle,
       summary: newSummary,
-      creator: loggedUser.displayName,
-      creatorId: loggedUser.uid
+      author: {
+        displayName: loggedUser.displayName || "anonymous",
+        authorId: loggedUser.uid || "anonymous",
+      }
     })
     alert("New stories added");
     getDataStories();
@@ -112,8 +116,24 @@ document.addEventListener('click', (e) => {
   // delete story from database
   eClasslist.contains("delete") &&
     deleteStory(e.target.getAttribute('data-id'));
-  // update story
 })
+
+document.querySelector(".upload-form").addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const file = e.target.querySelector(".file-input").files[0];
+  if (!file) return;
+  const filesFolderRef = ref(storage, `storageTestFiles/${file.name}`)
+  try {
+    await uploadBytes(filesFolderRef, file);
+    alert(`${file.name} uploaded successfully`);
+    
+  } catch (err) {
+    alert(`${file.name} error while uploading`);
+    console.error(err);
+  }
+})
+
+// update story
 const canUpdate = () => document.querySelectorAll(".update-title").forEach((e) => {
   e.addEventListener('submit', (el) => {
     el.preventDefault();
@@ -127,13 +147,23 @@ const canUpdate = () => document.querySelectorAll(".update-title").forEach((e) =
 
 const deleteStory = async (id) => {
   const storyDoc = doc(db, "stories", id);
-  await deleteDoc(storyDoc);
+  try {
+    await deleteDoc(storyDoc)
+    alert("Story delete success");
+  } catch (err) {
+    alert("Error deleting");
+    console.log(err);
+  }
   getDataStories();
-  alert("Story delete success");
 }
 const updateStoryTitle = async (id, newUpdatedTitle) => {
   const storyDoc = doc(db, "stories", id);
-  await updateDoc(storyDoc, { title: newUpdatedTitle });
+  try {
+    await updateDoc(storyDoc, { title: newUpdatedTitle });
+    alert("Story update success");
+  } catch (err) {
+    alert("Updating eror");
+    console.log(err);
+  }
   getDataStories();
-  alert("Story update success");
 }
